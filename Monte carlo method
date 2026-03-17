@@ -1,0 +1,24 @@
+import numpy as np
+def simulate_asset_prices(s0,mu,sigma,days,simulations):
+    daily_mu= mu/days
+    daily_sigma= sigma/np.sqrt(days)
+    daily_returns= np.random.normal(daily_mu, daily_sigma,(simulations,days))
+    multiplier= 1+daily_returns
+    compound_returns= np.cumprod(multiplier, axis=1)
+    price_path= s0*compound_returns
+    return price_path
+np.random.seed(14)
+initial_price=float(input("set a price:"))
+annual_return= 0.123
+annual_volatility=0.22
+trading_days=252
+simulations=10000
+paths= simulate_asset_prices(initial_price, annual_return, annual_volatility, trading_days,simulations)
+final_price=paths[:,-1]
+expected_price= np.mean(final_price)
+worst_case=np.percentile(final_price,5)
+best_case=np.percentile(final_price,95)
+print(f"Starting Price:            rs{initial_price:.2f}")
+print("-" * 40)
+print(f"Expected Final Price:      rs{expected_price:.2f}")
+print(f"95% Confidence Interval:  rs{worst_case:.2f} to rs{best_case:.2f}")
