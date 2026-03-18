@@ -24,8 +24,8 @@ print("-" * 40)
 print(f"Expected Final Price:      rs{expected_price:.2f}")
 print(f"95% Confidence Interval:   rs{worst_case:.2f} to rs{best_case:.2f}")
 starting_prices_col = np.full((simulations, 1), initial_price)
-full_paths = np.hstack((starting_prices_col, paths)) # Join Day 0 with simulated days
-time_axis = np.arange(0, trading_days + 1) # X-axis from 0 to 252
+full_paths = np.hstack((starting_prices_col, paths)) 
+time_axis = np.arange(0, trading_days + 1) 
 plt.figure(figsize=(12, 6), dpi=100)
 try:
     plt.style.use('seaborn-v0_8-whitegrid')
