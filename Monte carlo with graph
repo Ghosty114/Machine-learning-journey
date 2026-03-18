@@ -1,0 +1,54 @@
+import numpy as np
+import matplotlib.pyplot as plt
+def simulate_asset_prices(s0, mu, sigma, days, simulations):
+    daily_mu = mu / days
+    daily_sigma = sigma / np.sqrt(days)
+    daily_returns = np.random.normal(daily_mu, daily_sigma, (simulations, days))
+    multiplier = 1 + daily_returns
+    compound_returns = np.cumprod(multiplier, axis=1)
+    price_path = s0 * compound_returns
+    return price_path
+np.random.seed(14)
+initial_price = float(input("Set a price: "))
+annual_return = 0.123
+annual_volatility = 0.22
+trading_days = 252
+simulations = 10000
+paths = simulate_asset_prices(initial_price, annual_return, annual_volatility, trading_days, simulations)
+final_price = paths[:, -1]
+expected_price = np.mean(final_price)
+worst_case = np.percentile(final_price, 5)
+best_case = np.percentile(final_price, 95)
+print(f"\nStarting Price:            rs{initial_price:.2f}")
+print("-" * 40)
+print(f"Expected Final Price:      rs{expected_price:.2f}")
+print(f"95% Confidence Interval:   rs{worst_case:.2f} to rs{best_case:.2f}")
+starting_prices_col = np.full((simulations, 1), initial_price)
+full_paths = np.hstack((starting_prices_col, paths)) # Join Day 0 with simulated days
+time_axis = np.arange(0, trading_days + 1) # X-axis from 0 to 252
+plt.figure(figsize=(12, 6), dpi=100)
+try:
+    plt.style.use('seaborn-v0_8-whitegrid')
+except:
+    try:
+        plt.style.use('seaborn-whitegrid')
+    except:
+        pass # Fallback to default styling if seaborn is unavailable
+subset_indices = np.random.choice(simulations, 50, replace=False)
+for i in subset_indices:
+    plt.plot(time_axis, full_paths[i, :], color='#3498db', alpha=0.15, linewidth=0.8)
+mean_path = np.mean(full_paths, axis=0)
+plt.plot(time_axis, mean_path, color='#2c3e50', linewidth=2.5, label=f'Expected Final Price: rs{expected_price:.2f}')
+p5_path = np.percentile(full_paths, 5, axis=0)
+p95_path = np.percentile(full_paths, 95, axis=0)
+plt.plot(time_axis, p5_path, color='#e74c3c', linestyle='--', linewidth=1.5, label='Worst Case (5th Percentile)')
+plt.plot(time_axis, p95_path, color='#27ae60', linestyle='--', linewidth=1.5, label='Best Case (95th Percentile)')
+plt.title(f'10,000 Monte Carlo Simulations: 1-Year Price Outlook (Start: rs{initial_price:.2f})', fontsize=14, fontweight='bold', pad=15)
+plt.xlabel('Trading Days', fontsize=12)
+plt.ylabel('Asset Price (rs)', fontsize=12)
+plt.xlim(0, trading_days)
+plt.legend(loc='upper left', frameon=True, shadow=True)
+plt.tight_layout()
+print("\nGenerating chart... Please close the chart window to finish the script.")
+plt.show()
+plt.show()
